@@ -1,0 +1,31 @@
+---
+description: Prefer shared UI components over one-off markup
+alwaysApply: true
+---
+
+# UI Component-First Rule
+
+When implementing or editing frontend UI in this repository:
+
+- Prefer existing shared components in `components/ui` and feature-level reusable components before adding new one-off JSX + class strings.
+- If a needed pattern repeats in 2+ places (buttons, headers, fields, banners, list rows, menu/popover behavior), extract or extend a reusable component instead of duplicating markup.
+- Use design-system semantic tokens (`bg-background`, `text-foreground`, `border-border`, etc.) instead of direct color values whenever possible.
+- Keep components accessible by default:
+  - Use native semantics first.
+  - Ensure labels/`aria-label` are present for icon-only controls.
+  - Preserve keyboard and focus-visible behavior.
+  - Enforce text/background contrast ratios:
+    - Normal text must be at least `4.5:1`.
+    - Large text (>= 18px regular or >= 14px bold) must be at least `3:1`.
+    - UI text in all states (default, hover, active, disabled) must still meet contrast requirements.
+- For page-level structure, prefer shared layout primitives (page shell/header/content wrappers) rather than re-declaring the same container/header blocks across pages.
+
+If you choose not to reuse or extract a component, briefly justify why in the PR/summary.
+
+# Git Workflow Rule
+
+For every new task, create and work from a dedicated git branch before making code changes.
+
+- Branch naming should use a clear task-focused name.
+- Prefer prefix `codex/` for task branches.
+- Do not implement task changes directly on long-lived branches (e.g., `main`, `master`, shared feature branches).

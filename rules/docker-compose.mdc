@@ -1,0 +1,13 @@
+---
+description: Docker Compose run preference - API in foreground with logs
+alwaysApply: true
+---
+
+# Docker Compose: Run in Foreground
+
+When suggesting `docker compose up` for the backend API (or other services in this project), **do not use `-d`**.
+
+- Use: `docker compose up api` (or `docker compose up` for all services)
+- Avoid: `docker compose up -d api`
+
+The user wants to run containers in the foreground so logs stream in the terminal and they can stop with Ctrl+C.
