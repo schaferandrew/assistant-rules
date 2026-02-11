@@ -1,0 +1,50 @@
+---
+description: Always check logs across the full stack when debugging errors
+alwaysApply: true
+---
+
+# Debugging: Check Logs First
+
+When investigating errors, bugs, or unexpected behavior, **always check logs across the full stack** before making assumptions or proposing fixes.
+
+## Log Sources to Check
+
+### Backend API (Docker)
+```bash
+# Recent logs (last 5 minutes)
+docker logs vivian-backend-api-1 --since 5m
+
+# Search for errors/tracebacks
+docker logs vivian-backend-api-1 2>&1 | grep -B5 -A10 "Error\|Traceback\|500\|exception"
+
+# Follow logs in real-time
+docker logs -f vivian-backend-api-1
+```
+
+### Ollama (Local)
+- Ollama logs are visible in the terminal where `ollama serve` is running.
+- Verify Ollama is reachable: `curl http://localhost:11434/api/tags`
+- From inside Docker: `docker exec vivian-backend-api-1 python -c "import httpx; print(httpx.get('http://host.docker.internal:11434/api/tags', timeout=5).status_code)"`
+
+### Next.js Frontend
+- Check the browser developer console for client-side errors.
+- Check the terminal where `next dev` is running for server-side/proxy errors.
+
+### PostgreSQL
+```bash
+docker logs vivian-backend-postgres-1 --since 5m
+```
+
+## When to Check Logs
+
+1. **Any HTTP error (4xx/5xx)** -- check the backend logs for the full traceback, not just the status code.
+2. **"Server error" or generic error messages** -- the real error is almost always in the backend logs.
+3. **Features not working after code changes** -- check if the Docker container picked up the changes (may need rebuild).
+4. **Connectivity issues between services** -- verify env vars inside the container: `docker exec vivian-backend-api-1 env | grep <VAR_NAME>`
+
+## Common Pitfalls
+
+- **Docker env vars**: The container uses `VIVIAN_API_` prefixed env vars (mapped by docker-compose), not the raw `.env` names. Always verify with `docker exec ... env`.
+- **Stale containers**: After code changes, rebuild with `docker compose up -d --build api`. The uvicorn `--reload` only picks up changes if the source is mounted (check docker-compose volumes).
+- **Next.js caching**: The proxy layer can cache responses. Use `cache: "no-store"` for dynamic data. Clear `.next/cache` if stale data persists.
+- **Empty error messages**: Some exceptions (e.g. `httpx.ReadTimeout`) have empty `str()`. Always provide a fallback message in error handlers.
