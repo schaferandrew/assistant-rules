@@ -1,0 +1,54 @@
+---
+description: Creating and managing GitHub issues using the gh CLI
+alwaysApply: true
+---
+
+# GitHub Issue Management
+
+When creating GitHub issues:
+
+## Creating Issues
+
+Use the `gh` CLI to create issues directly:
+
+```bash
+gh issue create --title "Issue Title" --body-file /path/to/body.md --label "enhancement"
+```
+
+Or with inline body:
+
+```bash
+gh issue create --title "Issue Title" --body "Issue description here"
+```
+
+## Issue Body Structure
+
+For feature requests, include:
+- **Problem** - What problem does this solve?
+- **Proposed Solution** - How should it be implemented?
+- **Implementation Considerations** - Technical details and affected files
+- **Benefits** - Why is this valuable?
+
+For bug reports, include:
+- **Describe the bug** - What's happening?
+- **To Reproduce** - Steps to trigger the issue
+- **Expected behavior** - What should happen instead?
+- **Additional context** - Screenshots, logs, environment details
+
+## Common Labels
+
+Use existing repository labels:
+- `enhancement` - New features or improvements
+- `bug` - Something isn't working
+- `documentation` - Documentation improvements
+
+Check available labels with: `gh label list`
+
+## After Creating Issues
+
+Reference the issue number when creating branches:
+- Branch format: `codex/<issue-number>-<short-feature-slug>`
+- Example: `codex/26-receipt-flow-chat-history`
+
+In PR descriptions, use closing keywords:
+- `Closes #<issue-number>` or `Fixes #<issue-number>`

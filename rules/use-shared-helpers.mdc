@@ -1,0 +1,95 @@
+# AI Rule: Use Shared Helper Functions
+
+When writing or modifying code that involves text normalization, date parsing, or common string operations, **always use the shared helper functions** from `vivian_shared.helpers` instead of writing inline implementations.
+
+## Available Helpers
+
+### Normalization (`vivian_shared.helpers.normalization`)
+
+```python
+from vivian_shared.helpers import normalize_provider, normalize_title, normalize_header, escape_sheet_title
+
+# Use these for:
+- normalize_provider(name)     # Comparing provider names (removes LLC, MD, etc.)
+- normalize_title(title)       # Comparing worksheet/tab titles  
+- normalize_header(header)     # Comparing column headers
+- escape_sheet_title(title)    # Building A1 notation ranges
+```
+
+### Dates (`vivian_shared.helpers.dates`)
+
+```python
+from vivian_shared.helpers import parse_date, days_between, is_within_days, get_date_range
+
+# Use these for:
+- parse_date(date_str)         # Parse dates in any common format
+- days_between(d1, d2)         # Calculate day difference
+- is_within_days(d1, d2, n)    # Check if dates are within N days
+- get_date_range(center, n, m) # Get date range around a date
+```
+
+## Rule
+
+**❌ DON'T:** Write inline normalization or date parsing logic  
+**✅ DO:** Import and use shared helpers from `vivian_shared.helpers`
+
+## Examples
+
+### Provider Name Comparison
+
+```python
+# ❌ Bad - inline normalization
+if receipt.provider.lower().strip().replace("llc", "") == existing.provider.lower().strip().replace("llc", ""):
+    pass
+
+# ✅ Good - use shared helper
+from vivian_shared.helpers import normalize_provider
+if normalize_provider(receipt.provider) == normalize_provider(existing.provider):
+    pass
+```
+
+### Date Parsing
+
+```python
+# ❌ Bad - inline date parsing with hardcoded formats
+for fmt in ["%Y-%m-%d", "%m/%d/%Y", "%d/%m/%Y"]:
+    try:
+        date = datetime.strptime(date_str, fmt)
+    except ValueError:
+        continue
+
+# ✅ Good - use shared helper
+from vivian_shared.helpers import parse_date
+date = parse_date(date_str)
+```
+
+### Duplicate Detection
+
+```python
+# ❌ Bad - scattered logic
+provider_match = receipt.provider.lower() == existing.provider.lower()
+amount_match = abs(receipt.amount - existing.amount) < 0.01
+# ... etc
+
+# ✅ Good - use shared helpers for consistent matching
+from vivian_shared.helpers import normalize_provider, parse_date
+provider_match = normalize_provider(receipt.provider) == normalize_provider(existing.provider)
+amount_match = abs(receipt.amount - existing.amount) <= 0.01
+```
+
+## When to Extend
+
+If you find yourself writing similar normalization/parsing logic in multiple places:
+
+1. **Check** if a helper already exists in `vivian_shared.helpers`
+2. **If not**, add it to the appropriate helper module
+3. **Import** it wherever needed
+4. **Refactor** existing code to use the new helper
+
+This ensures consistency across the codebase and makes future changes easier.
+
+## Related Files
+
+- `/Users/Andrew/Developer/vivian-workspace/vivian-backend/packages/shared/src/vivian_shared/helpers/normalization.py`
+- `/Users/Andrew/Developer/vivian-workspace/vivian-backend/packages/shared/src/vivian_shared/helpers/dates.py`
+- `/Users/Andrew/Developer/vivian-workspace/vivian-backend/packages/shared/src/vivian_shared/helpers/__init__.py`
